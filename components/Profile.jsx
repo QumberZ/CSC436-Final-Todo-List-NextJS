@@ -32,7 +32,9 @@ const Profile = () => {
   const addLink = async (e) => {
     e.preventDefault();
 
-    const order = currentLinks.length + 1;
+    const order = currentLinks ? currentLinks.length + 1 : 1;
+
+
     const addedLink = await addNewLink(user.id, url, title, order, linkType);
     if (addedLink.success == false) {
       //handle error
@@ -87,7 +89,7 @@ const Profile = () => {
               </tr>
             </thead>
             <tbody>
-              {currentLinks.map((link) => {
+            {currentLinks?.map((link) => {
                 return (
                   <tr key={link.id}>
                     <td>{link.url}</td>
