@@ -550,16 +550,34 @@
 // };
 
 // export default Profile;
-
+import { useState, useEffect } from "react";
+import Modal from '@mui/material/Modal';
 import useUser from "csc-start/hooks/useUser";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
 import { addNewTodoItem, getTodoItems } from "csc-start/utils/data";
-import { useState, useEffect } from "react";
+import * as React from 'react';
+import Backdrop from '@mui/material/Backdrop';
+import { Box, Fade, TextField, Typography } from "@mui/material";
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 const Profile = () => {
   const [title, setTitle] = useState("");
   const [tasks, setTasks] = useState("");
   const [todoItems, setTodoItems] = useState([]);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const { user, refreshUser, error, loading } = useUser();
   useUserMustBeLogged(user, "in", "/login");
@@ -596,91 +614,93 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-      <div className="barge py-10 px-8 bg-gray-800 rounded-lg">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+      <div className="container mx-auto">
         {!!error && (
           <div className="bg-red-200 border-2 border-red-800 text-red-800 py-2 px-5 my-10 text-center">
             <span className="font-bold">{error.message}</span>
           </div>
         )}
-        {!error && loading && <p>Loading...</p>}
+        {loading && <p>Loading...</p>}
         {!error && !loading && (
           <div>
-            <p className="h2 my-5">Todo List</p>
-            <table className="border-collapse">
-              <thead>
-                <tr>
-                  <th className="border border-white px-4 py-2 text-white">Title</th>
-                  <th className="border border-white px-4 py-2 text-white">Tasks</th>
-                  <th className="border border-white px-4 py-2 text-white">Completed</th>
-                </tr>
-              </thead>
-              <tbody>
-  {todoItems?.map((item) => {
-    return [
-      <tr key={`${item.id}-title`}>
-        <td className="border border-white px-4 py-2 text-white">{item.title}</td>
-        <td className="border border-white px-4 py-2 text-white">{item.tasks}</td>
-        <td className="border border-white px-4 py-2 text-white">{item.completed ? "Yes" : "No"}</td>
-      </tr>,
-      Array.isArray(item.tasks) && (
-        <tr key={`${item.id}-tasks`}>
-          <td colSpan="2" className="border border-white px-4 py-2 text-white">
-            <ul>
-              {item.tasks.map((task, index) => (
-                <li key={`${item.id}-task-${index}`}>{task}</li>
+            <p className="text-4xl text-white font-bold my-5">Todo Lists</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {todoItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md"
+                >
+                  <h5 className="text-xl font-bold mb-4 text-center">{item.title}</h5>
+                  <h3 className="text-xl font-bold mb-4">{item.tasks}</h3>
+                  <p className="font-bold">
+                    Completed: {item.completed ? "Yes" : "No"}
+                  </p>
+                </div>
               ))}
-            </ul>
-          </td>
-        </tr>
-      )
-    ];
-  })}
-</tbody>
-
-
-
-
-
-
-
-            </table>
-            <form onSubmit={addTodoItem} className="mt-8">
-              <p className="h2 text-white">Add New Todo Item</p>
-              <p className="my-5">
-                <label htmlFor="title" className="inline-block w-32 text-right pr-4 text-white">
-                  Title:
-                </label>
-                <input
-                  id="title"
-                  className="border border-2 border-white px-2 text-black"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  type="text"
-                />
-              </p>
-              <p className="my-5">
-                <label htmlFor="tasks" className="inline-block w-32 text-right pr-4 text-white">
-                  Tasks:
-                </label>
-                <input
-                  id="tasks"
-                  className="border border-2 border-white px-2 text-black"
-                  value={tasks}
-                  onChange={(e) => setTasks(e.target.value)}
-                  required
-                  type="text"
-                />
-              </p>
-              <p className="text-center">
-                <input
-                  type="submit"
-                  className="button small bg-white text-blue-900 font-bold"
-                  value="Add Todo Item"
-                />
-              </p>
-            </form>
+            </div>
+            <button className="button small bg-white text-blue-900 font-bold mt-8" onClick={handleOpen}>
+              Add Todo Item
+            </button>
+            <Modal
+              aria-labelledby="transition-modal-title"
+              aria-describedby="transition-modal-description"
+              open={open}
+              onClose={handleClose}
+              closeAfterTransition
+              slots={{ backdrop: Backdrop }}
+              slotProps={{
+                backdrop: {
+                  timeout: 500,
+                },
+              }}
+            >
+              <Fade in={open}>
+                <Box sx={style}>
+                  <form onSubmit={addTodoItem}>
+                    <Typography variant="h6" component="h2" mb={2}>
+                      Title:
+                    </Typography>
+                    <TextField
+                      id="title"
+                      label="Title"
+                      variant="outlined"
+                      fullWidth
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                    <Typography variant="h6" component="h2" mt={3} mb={2}>
+                      Tasks:
+                    </Typography>
+                    <TextField
+                      id="tasks"
+                      label="Tasks"
+                      variant="outlined"
+                      fullWidth
+                      value={tasks}
+                      onChange={(e) => setTasks(e.target.value)}
+                      required
+                    />
+                    <div className="flex justify-center mt-4">
+                      <button
+                        type="submit"
+                        className="button small bg-blue-500 text-white font-bold"
+                        onClick={handleClose}
+                      >
+                        Add Todo Item
+                      </button>
+                      <button
+                        className="button small bg-red-500 text-white font-bold ml-2"
+                        onClick={handleClose} 
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </Box>
+              </Fade>
+            </Modal>
           </div>
         )}
       </div>
@@ -689,3 +709,5 @@ const Profile = () => {
 };
 
 export default Profile;
+
+
