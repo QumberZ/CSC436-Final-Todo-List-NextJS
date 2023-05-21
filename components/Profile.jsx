@@ -554,7 +554,7 @@ import { useState, useEffect } from "react";
 import Modal from '@mui/material/Modal';
 import useUser from "csc-start/hooks/useUser";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
-import { addNewTodoItem, getTodoItems } from "csc-start/utils/data";
+import { addNewTodoItem, getTodoItems, updateTodoItem } from "csc-start/utils/data";
 import * as React from 'react';
 import Backdrop from '@mui/material/Backdrop';
 import { Box, Fade, TextField, Typography } from "@mui/material";
@@ -576,8 +576,27 @@ const Profile = () => {
   const [tasks, setTasks] = useState("");
   const [todoItems, setTodoItems] = useState([]);
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [selectedItem, setSelectedItem] = useState(null); // Track selected item for editing
+
+  const handleOpen = (item = null) => {
+    if (item) {
+      setSelectedItem(item);
+      setTitle(item.title);
+      setTasks(item.tasks);
+    } else {
+      setSelectedItem(null);
+      setTitle("");
+      setTasks("");
+    }
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedItem(null);
+    setTitle("");
+    setTasks("");
+  };
 
   const { user, refreshUser, error, loading } = useUser();
   useUserMustBeLogged(user, "in", "/login");
@@ -598,17 +617,37 @@ const Profile = () => {
   const addTodoItem = async (e) => {
     e.preventDefault();
 
-    const order = todoItems ? todoItems.length + 1 : 1;
-    const completed = false;
+    if (selectedItem) {
+      // Updating existing item
+      const updatedTodoItem = await updateTodoItem(selectedItem.id, tasks, title);
+      // if (updatedTodoItem.success === false) {
+      //   // Handle error
+      //   return;
+      // }
 
-    const addedTodoItem = await addNewTodoItem(user.id, tasks, title, order, completed);
-    if (addedTodoItem.success === false) {
-      // Handle error
-      return;
+      const updatedItems = todoItems.map((item) => {
+        if (item.id === selectedItem.id) {
+          return { ...item, title, tasks };
+        }
+        return item;
+      });
+
+      setTodoItems(updatedItems);
+    } else {
+      // Adding new item
+      const order = todoItems ? todoItems.length + 1 : 1;
+      const completed = false;
+
+      const addedTodoItem = await addNewTodoItem(user.id, tasks, title, order, completed);
+      if (addedTodoItem.success === false) {
+        // Handle error
+        return;
+      }
+
+      setTodoItems([...todoItems, addedTodoItem.data]);
     }
 
-    setTitle("");
-    setTasks("");
+    handleClose();
     refreshUser();
     // Handle success
   };
@@ -624,7 +663,7 @@ const Profile = () => {
         {loading && <p>Loading...</p>}
         {!error && !loading && (
           <div>
-            <p className="text-4xl text-white font-bold my-5">Todo Lists</p>
+            <p className="text-4xl text-white font-bold my-5">Todo List</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {todoItems.map((item) => (
                 <div
@@ -636,10 +675,16 @@ const Profile = () => {
                   <p className="font-bold">
                     Completed: {item.completed ? "Yes" : "No"}
                   </p>
+                  <button
+                    className="button small bg-blue-500 text-white font-bold mt-4"
+                    onClick={() => handleOpen(item)} // Edit button
+                  >
+                    Edit
+                  </button>
                 </div>
               ))}
             </div>
-            <button className="button small bg-white text-blue-900 font-bold mt-8" onClick={handleOpen}>
+            <button className="button small bg-white text-blue-900 font-bold mt-8" onClick={() => handleOpen()}>
               Add Todo Item
             </button>
             <Modal
@@ -686,13 +731,12 @@ const Profile = () => {
                       <button
                         type="submit"
                         className="button small bg-blue-500 text-white font-bold"
-                        onClick={handleClose}
                       >
-                        Add Todo Item
+                        {selectedItem ? "Update Todo Item" : "Add Todo Item"}
                       </button>
                       <button
                         className="button small bg-red-500 text-white font-bold ml-2"
-                        onClick={handleClose} 
+                        onClick={handleClose} // Close the modal
                       >
                         Cancel
                       </button>
@@ -709,5 +753,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-

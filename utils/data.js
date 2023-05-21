@@ -91,14 +91,13 @@ const getTodoItems = async (user_id) => {
   };
 };
 
-const updateTodoItem = async (listId, title, completed) => {
+const updateTodoItem = async (id, tasks, title, completed) => {
   try {
     // Make an update query to update the todo item
     const { data, error } = await supabase
       .from('todo_items')
-      .update(completed)
-      .eq('id', title)
-      .eq('list_id', list_id);
+      .update({ tasks, title, completed })
+      .eq('id', id);
 
     // Handle the response and return the updated todo item
     if (error) {
@@ -107,16 +106,19 @@ const updateTodoItem = async (listId, title, completed) => {
 
     if (data && data.length > 0) {
       const updatedItem = data[0];
+      handleClose(); // Close the modal
       return updatedItem;
     }
 
-    throw new Error('Failed to update todo item.');
+  ;
   } catch (error) {
     // Handle the error
     console.log(error);
     throw error;
   }
 };
+
+
 
 
 const addNewLink = async (user_id, url, title, order, linkType = "link") => {
