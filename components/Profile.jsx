@@ -665,24 +665,31 @@ const Profile = () => {
           <div>
             <p className="text-4xl text-white font-bold my-5">Todo List</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {todoItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md"
-                >
-                  <h5 className="text-xl font-bold mb-4 text-center">{item.title}</h5>
-                  <h3 className="text-xl font-bold mb-4">{item.tasks}</h3>
-                  <p className="font-bold">
-                    Completed: {item.completed ? "Yes" : "No"}
-                  </p>
-                  <button
-                    className="button small bg-blue-500 text-white font-bold mt-4"
-                    onClick={() => handleOpen(item)} // Edit button
-                  >
-                    Edit
-                  </button>
-                </div>
-              ))}
+            {todoItems.map((item) => (
+  <div
+    key={item?.id}
+    className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md"
+  >
+    <h5 className="text-xl font-bold mb-4 text-center">
+      {item?.title ?? 'Untitled'}
+    </h5>
+    <h5 className="text-xl font-bold mb-4">
+      {item?.tasks ?? 'Untitled'}
+    </h5>
+    <p className="font-bold">
+      Completed: {item?.completed ? 'Yes' : 'No'}
+    </p>
+    <button
+      className="button small bg-blue-500 text-white font-bold mt-4"
+      onClick={() => handleOpen(item)} // Edit button
+    >
+      Edit
+    </button>
+  </div>
+))}
+
+
+
             </div>
             <button className="button small bg-white text-blue-900 font-bold mt-8" onClick={() => handleOpen()}>
               Add Todo Item

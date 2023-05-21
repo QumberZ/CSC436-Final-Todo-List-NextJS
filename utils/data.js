@@ -106,17 +106,17 @@ const updateTodoItem = async (id, tasks, title, completed) => {
 
     if (data && data.length > 0) {
       const updatedItem = data[0];
-      handleClose(); // Close the modal
       return updatedItem;
     }
 
-  ;
+
   } catch (error) {
     // Handle the error
     console.log(error);
     throw error;
   }
 };
+
 
 
 
