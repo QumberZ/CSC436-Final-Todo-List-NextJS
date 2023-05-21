@@ -551,32 +551,39 @@
 
 // export default Profile;
 import { useState, useEffect } from "react";
-import Modal from '@mui/material/Modal';
+import Modal from "@mui/material/Modal";
 import useUser from "csc-start/hooks/useUser";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
-import { addNewTodoItem, getTodoItems, updateTodoItem } from "csc-start/utils/data";
-import * as React from 'react';
-import Backdrop from '@mui/material/Backdrop';
+import {
+  addNewTodoItem,
+  getTodoItems,
+  updateTodoItem,
+} from "csc-start/utils/data";
+import * as React from "react";
+import Backdrop from "@mui/material/Backdrop";
 import { Box, Fade, TextField, Typography } from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: "background.paper",
+  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
 
 const Profile = () => {
   const [title, setTitle] = useState("");
-  const [tasks, setTasks] = useState("");
+  const [tasks, setTasks] = useState([]);
   const [todoItems, setTodoItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track selected item for editing
+  const [selectedTask, setSelectedTask] = useState("");
 
   const handleOpen = (item = null) => {
     if (item) {
@@ -586,7 +593,7 @@ const Profile = () => {
     } else {
       setSelectedItem(null);
       setTitle("");
-      setTasks("");
+      setTasks([]);
     }
     setOpen(true);
   };
@@ -595,7 +602,7 @@ const Profile = () => {
     setOpen(false);
     setSelectedItem(null);
     setTitle("");
-    setTasks("");
+    setTasks([]);
   };
 
   const { user, refreshUser, error, loading } = useUser();
@@ -619,7 +626,11 @@ const Profile = () => {
 
     if (selectedItem) {
       // Updating existing item
-      const updatedTodoItem = await updateTodoItem(selectedItem.id, tasks, title);
+      const updatedTodoItem = await updateTodoItem(
+        selectedItem.id,
+        tasks,
+        title
+      );
       // if (updatedTodoItem.success === false) {
       //   // Handle error
       //   return;
@@ -638,7 +649,13 @@ const Profile = () => {
       const order = todoItems ? todoItems.length + 1 : 1;
       const completed = false;
 
-      const addedTodoItem = await addNewTodoItem(user.id, tasks, title, order, completed);
+      const addedTodoItem = await addNewTodoItem(
+        user.id,
+        tasks,
+        title,
+        order,
+        completed
+      );
       if (addedTodoItem.success === false) {
         // Handle error
         return;
@@ -651,6 +668,36 @@ const Profile = () => {
     refreshUser();
     // Handle success
   };
+
+  const handleTaskChange = (e) => {
+    setSelectedTask(e.target.value);
+  };
+
+  const handleAddTask = () => {
+    if (selectedTask.trim() !== "") {
+      setTasks([...tasks, selectedTask]);
+      setSelectedTask("");
+    }
+  };
+
+  const handleRemoveTask = (index) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+  };
+
+  function formatTasks(tasks) {
+    if (!Array.isArray(tasks)) {
+      return [];
+    }
+  
+    // Filter out empty strings
+    const filteredTasks = tasks.filter(task => task.trim() !== '');
+  
+    // Remove square brackets
+    const formattedTasks = filteredTasks.map(task => task.replace(/[\[\]]/g, ''));
+  
+    return formattedTasks;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
@@ -666,18 +713,28 @@ const Profile = () => {
             <p className="text-4xl text-white font-bold my-5">Todo List</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {todoItems.map((item) => (
-  <div
-    key={item?.id}
-    className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md"
-  >
+  <div key={item?.id} className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md">
     <h5 className="text-xl font-bold mb-4 text-center">
-      {item?.title ?? 'Untitled'}
+      {item?.title ?? "Untitled"}
     </h5>
-    <h5 className="text-xl font-bold mb-4">
-      {item?.tasks ?? 'Untitled'}
+  
+    <ul className="border rounded-lg p-4">
+      <li className="flex items-center mb-2">
+        
+        <input
+          type="checkbox"
+          className="mr-2"
+          // Handle checkbox functionality here
+        />
+   <h5 className="text-xl font-bold mb-2 ">
+      {item?.tasks ?? "Untitled"}
     </h5>
+
+      </li>
+</ul>
+
     <p className="font-bold">
-      Completed: {item?.completed ? 'Yes' : 'No'}
+      Completed: {item?.completed ? "Yes" : "No"}
     </p>
     <button
       className="button small bg-blue-500 text-white font-bold mt-4"
@@ -687,11 +744,21 @@ const Profile = () => {
     </button>
   </div>
 ))}
+ 
+ 
+
+
+
+
+
 
 
 
             </div>
-            <button className="button small bg-white text-blue-900 font-bold mt-8" onClick={() => handleOpen()}>
+            <button
+              className="button small bg-white text-blue-900 font-bold mt-8"
+              onClick={() => handleOpen()}
+            >
               Add Todo Item
             </button>
             <Modal
@@ -725,29 +792,50 @@ const Profile = () => {
                     <Typography variant="h6" component="h2" mt={3} mb={2}>
                       Tasks:
                     </Typography>
-                    <TextField
-                      id="tasks"
-                      label="Tasks"
-                      variant="outlined"
-                      fullWidth
-                      value={tasks}
-                      onChange={(e) => setTasks(e.target.value)}
-                      required
-                    />
-                    <div className="flex justify-center mt-4">
+                    <div className="flex">
+                      <TextField
+                        id="tasks"
+                        label="Tasks"
+                        variant="outlined"
+                        fullWidth
+                        value={selectedTask}
+                        onChange={handleTaskChange}
+                      />
                       <button
-                        type="submit"
-                        className="button small bg-blue-500 text-white font-bold"
+                        type="button"
+                        className="button small bg-green-500 text-white font-bold ml-2"
+                        onClick={handleAddTask}
                       >
-                        {selectedItem ? "Update Todo Item" : "Add Todo Item"}
-                      </button>
-                      <button
-                        className="button small bg-red-500 text-white font-bold ml-2"
-                        onClick={handleClose} // Close the modal
-                      >
-                        Cancel
+                        Add
                       </button>
                     </div>
+                    <ul className="border rounded-lg p-4 mt-3">
+                      {Array.isArray(tasks) &&
+                        tasks.map((task, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between border-b-2 py-2"
+                          >
+                            <FormControlLabel
+                              control={<Checkbox />}
+                              label={task}
+                            />
+                            <button
+                              type="button"
+                              className="button small bg-red-500 text-white font-bold"
+                              onClick={() => handleRemoveTask(index)}
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                    <button
+                      type="submit"
+                      className="button small bg-blue-500 text-white font-bold mt-4"
+                    >
+                      Save
+                    </button>
                   </form>
                 </Box>
               </Fade>
@@ -760,3 +848,4 @@ const Profile = () => {
 };
 
 export default Profile;
+
