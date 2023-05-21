@@ -719,19 +719,21 @@ const Profile = () => {
     </h5>
   
     <ul className="border rounded-lg p-4">
-      <li className="flex items-center mb-2">
-        
-        <input
-          type="checkbox"
-          className="mr-2"
-          // Handle checkbox functionality here
-        />
-   <h5 className="text-xl font-bold mb-2 ">
-      {item?.tasks ?? "Untitled"}
-    </h5>
-
-      </li>
-</ul>
+      {Array.isArray(item?.tasks) && (
+        item.tasks.map((task, index) => (
+          <li key={index} className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              className="mr-2"
+              // Handle checkbox functionality here
+            />
+            <h5 className="text-xl font-bold mb-2">
+              {task}
+            </h5>
+          </li>
+        ))
+      )}
+    </ul>
 
     <p className="font-bold">
       Completed: {item?.completed ? "Yes" : "No"}
@@ -744,8 +746,7 @@ const Profile = () => {
     </button>
   </div>
 ))}
- 
- 
+
 
 
 
