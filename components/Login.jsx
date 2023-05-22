@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
 import useUser from "csc-start/hooks/useUser";
 
-
 const Login = () => {
   const { user } = useUser();
   useUserMustBeLogged(user, "out", "/profile");
@@ -54,9 +53,8 @@ const Login = () => {
   };
 
   return (
-    
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-      <div className="barge py-10 px-8 bg-gray-800 rounded-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-700 to-purple-500 text-white">
+      <div className="barge py-20 px-12 bg-white rounded-lg">
         {response && (
           <div
             className={`${
@@ -72,7 +70,7 @@ const Login = () => {
             </span>
           </div>
         )}
-        <h2 className="my-10 h1 text-center">Login</h2>
+        <h2 className="my-10 h1 text-center text-blue-500">Login</h2>
         <form
           onSubmit={login}
           className={loading ? "opacity-50 pointer-events-none" : ""}
@@ -89,11 +87,11 @@ const Login = () => {
 
               return (
                 <p key={key} className="mb-5">
-                  <label className="h3 capitalize w-[75px] inline-block">
+                  <label className="h3 capitalize w-[75px] inline-block text-blue-500">
                     {key}*
                   </label>
                   <input
-                    className="h3 border-2 border-white ml-5 inline-block w-[220px] px-2 text-black"
+                    className="h3 border-2 border-black ml-5 inline-block w-[220px] px-2 text-blue-500"
                     required
                     name={key}
                     onChange={(e) => {
@@ -107,7 +105,7 @@ const Login = () => {
             })}
           <div className="flex justify-center my-10">
             <input
-              className="button small bg-white text-blue-900 font-bold"
+              className="button small bg-white text-blue-500 font-bold"
               type="submit"
               value="Login"
             />
@@ -119,4 +117,3 @@ const Login = () => {
 };
 
 export default Login;
-
