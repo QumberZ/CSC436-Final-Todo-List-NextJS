@@ -16,7 +16,14 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import PropTypes from 'prop-types';
 import LinearProgress from '@mui/material/LinearProgress';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function LinearProgressWithLabel(props) {
   return (
@@ -34,10 +41,6 @@ function LinearProgressWithLabel(props) {
 }
 
 LinearProgressWithLabel.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate and buffer variants.
-   * Value between 0 and 100.
-   */
   value: PropTypes.number.isRequired,
 };
 
@@ -64,8 +67,8 @@ const Profile = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Track delete confirmation modal open state
   const [selectedItemToDelete, setSelectedItemToDelete] = useState(null); // Track selected item for deletion
   const [progress, setProgress] = React.useState(10);
-
-
+  const [openAlert, setOpenAlert] = React.useState(false); 
+   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prevProgress) => (prevProgress >= 100 ? 10 : prevProgress + 10));
@@ -76,6 +79,29 @@ const Profile = () => {
   }, []);
 
 
+  const handleOpenAlert = () => {
+    setOpenAlert(true);
+  };
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
+
+  const handleOpenDeleteAlert = () => {
+    setOpenDeleteAlert(true);
+  };
+
+  const handleCloseDeleteAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenDeleteAlert(false);
+  };
   const handleOpen = (item = null) => {
     if (item) {
       setSelectedItem(item);
@@ -121,6 +147,7 @@ const Profile = () => {
     }
     handleDeleteClose();
     refreshUser();
+    handleOpenDeleteAlert()
   };
 
   const { user, refreshUser, error, loading } = useUser();
@@ -184,6 +211,7 @@ const Profile = () => {
 
     handleClose();
     refreshUser();
+    handleOpenAlert()
     // Handle success
   };
 
@@ -218,6 +246,17 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
       <div className="container mx-auto pb-10">
+      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity="success" sx={{ width: '100%' }}>
+          Todo List Successfully Saved!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={openDeleteAlert} autoHideDuration={6000} onClose={handleCloseDeleteAlert}>
+        <Alert onClose={handleCloseDeleteAlert} icon={<CheckCircleOutlineIcon fontSize="inherit" />} severity="error" sx={{ width: '100%' }}>
+          Todo List Successfully Deleted!
+        </Alert>
+      </Snackbar>
         {!!error && (
           <div className="bg-red-200 border-2 border-red-800 text-red-800 py-2 px-5 my-10 text-center">
             <span className="font-bold">{error.message}</span>
@@ -308,7 +347,7 @@ const Profile = () => {
                       type="submit"
                       className="button small bg-blue-500 text-white font-bold mt-4"
                     >
-                      Save
+                      Save Todo List
                     </button>
                   </form>
                 </Box>
