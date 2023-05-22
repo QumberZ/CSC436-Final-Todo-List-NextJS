@@ -14,24 +14,33 @@ import Backdrop from "@mui/material/Backdrop";
 import { Box, Fade, TextField, Typography } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-// import PropTypes from 'prop-types';
-// import LinearProgress from '@mui/material/LinearProgress';
+import PropTypes from 'prop-types';
+import LinearProgress from '@mui/material/LinearProgress';
 
 
-// function LinearProgressWithLabel(props) {
-//   return (
-//     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-//       <Box sx={{ width: '100%', mr: 1 }}>
-//         <LinearProgress variant="determinate" {...props} />
-//       </Box>
-//       <Box sx={{ minWidth: 35 }}>
-//         <Typography variant="body2" color="text.secondary">{`${Math.round(
-//           props.value,
-//         )}%`}</Typography>
-//       </Box>
-//     </Box>
-//   );
-// }
+function LinearProgressWithLabel(props) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ width: '100%', mr: 1 }}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">{`${Math.round(
+          props.value,
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
+LinearProgressWithLabel.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate and buffer variants.
+   * Value between 0 and 100.
+   */
+  value: PropTypes.number.isRequired,
+};
+
 
 const style = {
   position: "absolute",
@@ -54,6 +63,18 @@ const Profile = () => {
   const [selectedTask, setSelectedTask] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Track delete confirmation modal open state
   const [selectedItemToDelete, setSelectedItemToDelete] = useState(null); // Track selected item for deletion
+  const [progress, setProgress] = React.useState(10);
+
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((prevProgress) => (prevProgress >= 100 ? 10 : prevProgress + 10));
+    }, 800);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
 
   const handleOpen = (item = null) => {
     if (item) {
@@ -202,7 +223,9 @@ const Profile = () => {
             <span className="font-bold">{error.message}</span>
           </div>
         )}
-        {loading && <p>Loading...</p>}
+        {loading &&   <Box sx={{ width: '100%' }}>
+      <LinearProgressWithLabel value={progress} />
+    </Box>}
         {!error && !loading && (
           <div>
             <p className="text-4xl text-white font-bold my-5">Todo List</p>
