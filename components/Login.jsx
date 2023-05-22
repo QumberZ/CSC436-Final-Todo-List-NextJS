@@ -53,8 +53,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-700 to-purple-500 text-white">
-      <div className="barge py-20 px-12 bg-white rounded-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-700 to-purple-500 text-white" style={{ border: "4px solid black" }}>
+      <div className="barge py-20 px-12 bg-white rounded-lg " style={{ border: "4px solid black" }}>
         {response && (
           <div
             className={`${

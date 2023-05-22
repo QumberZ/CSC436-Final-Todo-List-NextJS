@@ -370,7 +370,7 @@ const Profile = () => {
               {todoItems.map((item) => (
                 <div
                   key={item?.id}
-                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md todo-item"
+                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md todo-item" style={{ border: "4px solid black" }}
                 >
                   <img
                     src="https://clickup.com/blog/wp-content/uploads/2019/01/to-do-list-apps.png"

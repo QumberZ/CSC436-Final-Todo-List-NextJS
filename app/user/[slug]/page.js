@@ -79,7 +79,7 @@ const Page = ({ params: { slug } }) => {
               {todoItems.map((item) => (
                 <div
                   key={item?.id}
-                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md todo-item flex flex-col"
+                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md todo-item flex flex-col" style={{ border: "4px solid black" }}
                 >
                   <div className="flex flex-col items-center">
                     <img

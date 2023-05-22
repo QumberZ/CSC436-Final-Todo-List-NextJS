@@ -25,7 +25,7 @@ export default async function Home() {
         {data.map(({ name, slug }) => {
           return (
             <Link key={slug} href={`/user/${slug}`} className="block my-5">
-              <div className="bg-blue-900 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded">
+              <div className="bg-blue-900 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded" style={{ border: "4px solid black" }}>
                 <p className="text-3xl text-center font-bold mb-2">
                   Username: {name}
                 </p>

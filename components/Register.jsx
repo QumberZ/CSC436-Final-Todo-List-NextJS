@@ -57,7 +57,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white" style={{ border: "4px solid black" }}>
       <div className="barge py-10 px-8 bg-gray-800 rounded-lg">
         {response && (
           <div
