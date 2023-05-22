@@ -5,7 +5,6 @@ import { useReducer } from "react";
 import { useRouter } from "next/navigation";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
 import useUser from "csc-start/hooks/useUser";
-import Background from "./Background";
 
 const Register = () => {
   const { user } = useUser();
@@ -58,7 +57,6 @@ const Register = () => {
   };
 
   return (
-  
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white">
       <div className="barge py-10 px-8 bg-gray-800 rounded-lg">
         {response && (

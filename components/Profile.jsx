@@ -7,19 +7,18 @@ import {
   addNewTodoItem,
   getTodoItems,
   updateTodoItem,
-  deleteTodoItem, // Add the deleteTodoItem function
+  deleteTodoItem,
 } from "csc-start/utils/data";
 import * as React from "react";
 import Backdrop from "@mui/material/Backdrop";
 import { Box, Fade, TextField, Typography } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import PropTypes from 'prop-types';
-import LinearProgress from '@mui/material/LinearProgress';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-
+import PropTypes from "prop-types";
+import LinearProgress from "@mui/material/LinearProgress";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -27,13 +26,13 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 function LinearProgressWithLabel(props) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
         <LinearProgress variant="determinate" {...props} />
       </Box>
       <Box sx={{ minWidth: 35 }}>
         <Typography variant="body2" color="text.secondary">{`${Math.round(
-          props.value,
+          props.value
         )}%`}</Typography>
       </Box>
     </Box>
@@ -43,7 +42,6 @@ function LinearProgressWithLabel(props) {
 LinearProgressWithLabel.propTypes = {
   value: PropTypes.number.isRequired,
 };
-
 
 const style = {
   position: "absolute",
@@ -62,29 +60,30 @@ const Profile = () => {
   const [tasks, setTasks] = useState([]);
   const [todoItems, setTodoItems] = useState([]);
   const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null); // Track selected item for editing
+  const [selectedItem, setSelectedItem] = useState(null);
   const [selectedTask, setSelectedTask] = useState("");
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Track delete confirmation modal open state
-  const [selectedItemToDelete, setSelectedItemToDelete] = useState(null); // Track selected item for deletion
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedItemToDelete, setSelectedItemToDelete] = useState(null);
   const [progress, setProgress] = React.useState(10);
-  const [openAlert, setOpenAlert] = React.useState(false); 
-   const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
+  const [openAlert, setOpenAlert] = React.useState(false);
+  const [openDeleteAlert, setOpenDeleteAlert] = React.useState(false);
   useEffect(() => {
     const timer = setInterval(() => {
-      setProgress((prevProgress) => (prevProgress >= 100 ? 10 : prevProgress + 10));
+      setProgress((prevProgress) =>
+        prevProgress >= 100 ? 10 : prevProgress + 10
+      );
     }, 800);
     return () => {
       clearInterval(timer);
     };
   }, []);
 
-
   const handleOpenAlert = () => {
     setOpenAlert(true);
   };
 
   const handleCloseAlert = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
 
@@ -96,7 +95,7 @@ const Profile = () => {
   };
 
   const handleCloseDeleteAlert = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
 
@@ -131,6 +130,7 @@ const Profile = () => {
     setSelectedItemToDelete(null);
     setDeleteModalOpen(false);
   };
+  
 
   const deleteTodoList = async (e) => {
     e.preventDefault();
@@ -142,12 +142,11 @@ const Profile = () => {
         );
         setTodoItems(updatedItems);
       } else {
-        // Handle error
       }
     }
     handleDeleteClose();
     refreshUser();
-    handleOpenDeleteAlert()
+    handleOpenDeleteAlert();
   };
 
   const { user, refreshUser, error, loading } = useUser();
@@ -170,7 +169,6 @@ const Profile = () => {
     e.preventDefault();
 
     if (selectedItem) {
-      // Updating existing item
       const updatedTodoItem = await updateTodoItem(
         selectedItem.id,
         tasks,
@@ -211,22 +209,38 @@ const Profile = () => {
 
     handleClose();
     refreshUser();
-    handleOpenAlert()
+    handleOpenAlert();
     // Handle success
   };
 
-  const updateTaskCompletion = async (itemId, taskIndex, completed) => {
-    const updatedTodoItems = [...todoItems];
-    const itemIndex = updatedTodoItems.findIndex((item) => item.id === itemId);
-    if (itemIndex !== -1) {
-      updatedTodoItems[itemIndex].tasks[taskIndex].completed = completed;
-      setTodoItems(updatedTodoItems);
+const updateTaskCompletion = async (itemId, taskIndex, completed) => {
+  const updatedTodoItems = [...todoItems];
+  const itemIndex = updatedTodoItems.findIndex((item) => item.id === itemId);
 
-      // Update the completed status in Supabase or your preferred data source
-      await updateTodoItem(itemId, updatedTodoItems[itemIndex].tasks);
+  if (itemIndex !== -1) {
+    const updatedTask = { ...updatedTodoItems[itemIndex].tasks[taskIndex] };
+    updatedTask.completed = completed;
+
+    updatedTodoItems[itemIndex].tasks[taskIndex] = updatedTask;
+
+    if (completed) {
+      updatedTodoItems[itemIndex].completed = "Yes";
+    } else {
+      updatedTodoItems[itemIndex].completed = "No";
     }
-  };
 
+    setTodoItems(updatedTodoItems);
+
+    // Update the completed status in the database or your preferred data source
+    await updateTodoItem(itemId, updatedTodoItems[itemIndex].tasks);
+  }
+};
+
+  
+  const handleCheckboxChange = async (itemId, taskIndex, completed) => {
+    await updateTaskCompletion(itemId, taskIndex, completed);
+  };
+  
   const handleTaskChange = (e) => {
     setSelectedTask(e.target.value);
   };
@@ -246,25 +260,44 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
       <div className="container mx-auto pb-10">
-      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseAlert}>
-        <Alert onClose={handleCloseAlert} severity="success" sx={{ width: '100%' }}>
-          Todo List Successfully Saved!
-        </Alert>
-      </Snackbar>
+        <Snackbar
+          open={openAlert}
+          autoHideDuration={6000}
+          onClose={handleCloseAlert}
+        >
+          <Alert
+            onClose={handleCloseAlert}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            Todo List Successfully Saved!
+          </Alert>
+        </Snackbar>
 
-      <Snackbar open={openDeleteAlert} autoHideDuration={6000} onClose={handleCloseDeleteAlert}>
-        <Alert onClose={handleCloseDeleteAlert} icon={<CheckCircleOutlineIcon fontSize="inherit" />} severity="error" sx={{ width: '100%' }}>
-          Todo List Successfully Deleted!
-        </Alert>
-      </Snackbar>
+        <Snackbar
+          open={openDeleteAlert}
+          autoHideDuration={6000}
+          onClose={handleCloseDeleteAlert}
+        >
+          <Alert
+            onClose={handleCloseDeleteAlert}
+            icon={<CheckCircleOutlineIcon fontSize="inherit" />}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            Todo List Successfully Deleted!
+          </Alert>
+        </Snackbar>
         {!!error && (
           <div className="bg-red-200 border-2 border-red-800 text-red-800 py-2 px-5 my-10 text-center">
             <span className="font-bold">{error.message}</span>
           </div>
         )}
-        {loading &&   <Box sx={{ width: '100%' }}>
-      <LinearProgressWithLabel value={progress} />
-    </Box>}
+        {loading && (
+          <Box sx={{ width: "100%" }}>
+            <LinearProgressWithLabel value={progress} />
+          </Box>
+        )}
         {!error && !loading && (
           <div>
             <p className="text-4xl text-white font-bold my-5">Todo List</p>
@@ -397,13 +430,13 @@ const Profile = () => {
                   <div className="flex justify-center mt-4">
                     <button
                       className="button small bg-blue-500 text-white font-bold mr-2"
-                      onClick={() => handleOpen(item)} // Edit button
+                      onClick={() => handleOpen(item)}
                     >
                       Edit
                     </button>
                     <button
                       className="button small bg-red-500 text-white font-bold"
-                      onClick={() => handleDeleteOpen(item)} // Delete button
+                      onClick={() => handleDeleteOpen(item)}
                     >
                       Delete
                     </button>
