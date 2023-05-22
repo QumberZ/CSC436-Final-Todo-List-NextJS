@@ -130,7 +130,6 @@ const Profile = () => {
     setSelectedItemToDelete(null);
     setDeleteModalOpen(false);
   };
-  
 
   const deleteTodoList = async (e) => {
     e.preventDefault();
@@ -188,7 +187,6 @@ const Profile = () => {
 
       setTodoItems(updatedItems);
     } else {
-      // Adding new item
       const order = todoItems ? todoItems.length + 1 : 1;
       const completed = false;
 
@@ -200,7 +198,6 @@ const Profile = () => {
         completed
       );
       if (addedTodoItem.success === false) {
-        // Handle error
         return;
       }
 
@@ -210,36 +207,8 @@ const Profile = () => {
     handleClose();
     refreshUser();
     handleOpenAlert();
-    // Handle success
   };
 
-const updateTaskCompletion = async (itemId, taskIndex, completed) => {
-  const updatedTodoItems = [...todoItems];
-  const itemIndex = updatedTodoItems.findIndex((item) => item.id === itemId);
-
-  if (itemIndex !== -1) {
-    const updatedTask = { ...updatedTodoItems[itemIndex].tasks[taskIndex] };
-    updatedTask.completed = completed;
-
-    updatedTodoItems[itemIndex].tasks[taskIndex] = updatedTask;
-
-    if (completed) {
-      updatedTodoItems[itemIndex].completed = "Yes";
-    } else {
-      updatedTodoItems[itemIndex].completed = "No";
-    }
-
-    setTodoItems(updatedTodoItems);
-
-    // Update the completed status in the database or your preferred data source
-    await updateTodoItem(itemId, updatedTodoItems[itemIndex].tasks);
-  }
-};
-
-  
-  const handleCheckboxChange = async (itemId, taskIndex, completed) => {
-    await updateTaskCompletion(itemId, taskIndex, completed);
-  };
   
   const handleTaskChange = (e) => {
     setSelectedTask(e.target.value);
@@ -257,6 +226,17 @@ const updateTaskCompletion = async (itemId, taskIndex, completed) => {
     setTasks(updatedTasks);
   };
 
+  const handleTaskCompletion = (index) => {
+    const updatedTasks = tasks.map((task, i) => {
+      if (i === index) {
+        return { text: task.text, completed: !task.completed };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+  };
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
       <div className="container mx-auto pb-10">
@@ -404,27 +384,29 @@ const updateTaskCompletion = async (itemId, taskIndex, completed) => {
                   <table className="border-collapse w-full">
                     <thead>
                       <tr>
-                        <th className="p-2 border text-left">Task</th>
+                        <th className="p-2 border text-left">Tasks</th>
                         <th className="p-2 border text-left">Completed</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.isArray(item?.tasks) &&
-                        item.tasks.map((task, index) => (
-                          <tr key={index}>
-                            <td className="p-2 border">
-                              <FormControlLabel
-                                control={<Checkbox />}
-                                label={task}
-                              />
-                            </td>
-
-                            <td className="p-2 border">
-                              {item?.completed ? "Yes" : "No"}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
+  {Array.isArray(item?.tasks) &&
+    item.tasks.map((task, index) => (
+      <tr key={index}>
+        <td className="p-2 border">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={task.completed}
+                onChange={() => handleTaskCompletion(index)}
+              />
+            }
+            label={task}
+          />
+        </td>
+        <td className="p-2 border">{task.completed ? "Yes" : "No"}</td>
+      </tr>
+    ))}
+</tbody>
                   </table>
 
                   <div className="flex justify-center mt-4">
