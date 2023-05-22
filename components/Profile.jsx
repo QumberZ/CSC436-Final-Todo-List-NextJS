@@ -1,130 +1,286 @@
 "use client";
+import { useState, useEffect } from "react";
+import Modal from "@mui/material/Modal";
 import useUser from "csc-start/hooks/useUser";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
-import { addNewLink } from "csc-start/utils/data";
-import { useState, useEffect } from "react";
+import {
+  addNewTodoItem,
+  getTodoItems,
+  updateTodoItem,
+} from "csc-start/utils/data";
+import * as React from "react";
+import Backdrop from "@mui/material/Backdrop";
+import { Box, Fade, TextField, Typography } from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 const Profile = () => {
   const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [linkType, setLinkType] = useState("link");
-  const [currentLinks, setCurrentLinks] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [todoItems, setTodoItems] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null); // Track selected item for editing
+  const [selectedTask, setSelectedTask] = useState("");
+
+  const handleOpen = (item = null) => {
+    if (item) {
+      setSelectedItem(item);
+      setTitle(item.title);
+      setTasks(item.tasks);
+    } else {
+      setSelectedItem(null);
+      setTitle("");
+      setTasks([]);
+    }
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedItem(null);
+    setTitle("");
+    setTasks([]);
+  };
 
   const { user, refreshUser, error, loading } = useUser();
   useUserMustBeLogged(user, "in", "/login");
 
   useEffect(() => {
     if (user) {
-      let tempCurrentLinks = user.socialLinks;
-      if (linkType === "link") {
-        tempCurrentLinks = user.linkLinks;
-      }
+      const fetchTodoItems = async () => {
+        const todoItemsData = await getTodoItems(user.id);
+        if (todoItemsData.success) {
+          setTodoItems(todoItemsData.data);
+        }
+      };
 
-      setCurrentLinks(tempCurrentLinks);
+      fetchTodoItems();
     }
-  }, [user, linkType]);
+  }, [user]);
 
-  const addLink = async (e) => {
+  const addTodoItem = async (e) => {
     e.preventDefault();
 
-    const order = currentLinks ? currentLinks.length + 1 : 1;
+    if (selectedItem) {
+      // Updating existing item
+      const updatedTodoItem = await updateTodoItem(
+        selectedItem.id,
+        tasks,
+        title
+      );
+      // if (updatedTodoItem.success === false) {
+      //   // Handle error
+      //   return;
+      // }
 
-    const addedLink = await addNewLink(user.id, url, title, order, linkType);
-    if (addedLink.success === false) {
-      // Handle error
-      return;
+      const updatedItems = todoItems.map((item) => {
+        if (item.id === selectedItem.id) {
+          return { ...item, title, tasks };
+        }
+        return item;
+      });
+
+      setTodoItems(updatedItems);
+    } else {
+      // Adding new item
+      const order = todoItems ? todoItems.length + 1 : 1;
+      const completed = false;
+
+      const addedTodoItem = await addNewTodoItem(
+        user.id,
+        tasks,
+        title,
+        order,
+        completed
+      );
+      if (addedTodoItem.success === false) {
+        // Handle error
+        return;
+      }
+
+      setTodoItems([...todoItems, addedTodoItem.data]);
     }
-    setUrl("");
-    setTitle("");
+
+    handleClose();
     refreshUser();
     // Handle success
   };
 
+  const handleTaskChange = (e) => {
+    setSelectedTask(e.target.value);
+  };
+
+  const handleAddTask = () => {
+    if (selectedTask.trim() !== "") {
+      setTasks([...tasks, selectedTask]);
+      setSelectedTask("");
+    }
+  };
+
+  const handleRemoveTask = (index) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-      <div className="barge py-10 px-8 bg-gray-800 rounded-lg">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+      <div className="container mx-auto pb-10">
         {!!error && (
           <div className="bg-red-200 border-2 border-red-800 text-red-800 py-2 px-5 my-10 text-center">
             <span className="font-bold">{error.message}</span>
           </div>
         )}
-        {!error && loading && <p>Loading...</p>}
+        {loading && <p>Loading...</p>}
         {!error && !loading && (
           <div>
-            <div className="flex justify-between my-5">
-              <button
-                disabled={linkType === "social"}
-                onClick={() => setLinkType("social")}
-                className="button small bg-white text-blue-900 font-bold"
-              >
-                Social
-              </button>
-              <button
-                disabled={linkType === "link"}
-                onClick={() => setLinkType("link")}
-                className="button small bg-white text-blue-900 font-bold"
-              >
-                Links
-              </button>
-            </div>
+            <p className="text-4xl text-white font-bold my-5">Todo List</p>
+            <button
+              className="button small bg-white text-blue-900 font-bold mt-8"
+              onClick={() => handleOpen()}
+            >
+              Add Todo Item
+            </button>
+            <Modal
+              aria-labelledby="transition-modal-title"
+              aria-describedby="transition-modal-description"
+              open={open}
+              onClose={handleClose}
+              closeAfterTransition
+              slots={{ backdrop: Backdrop }}
+              slotProps={{
+                backdrop: {
+                  timeout: 500,
+                },
+              }}
+            >
+              <Fade in={open}>
+                <Box sx={style}>
+                  <form onSubmit={addTodoItem}>
+                    <Typography variant="h6" component="h2" mb={2}>
+                      Title:
+                    </Typography>
+                    <TextField
+                      id="title"
+                      label="Title"
+                      variant="outlined"
+                      fullWidth
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                    <Typography variant="h6" component="h2" mt={3} mb={2}>
+                      Tasks:
+                    </Typography>
+                    <div className="flex">
+                      <TextField
+                        id="tasks"
+                        label="Tasks"
+                        variant="outlined"
+                        fullWidth
+                        value={selectedTask}
+                        onChange={handleTaskChange}
+                      />
+                      <button
+                        type="button"
+                        className="button small bg-green-500 text-white font-bold ml-2"
+                        onClick={handleAddTask}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <ul className="border rounded-lg p-4 mt-3">
+                      {Array.isArray(tasks) &&
+                        tasks.map((task, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between border-b-2 py-2"
+                          >
+                            <FormControlLabel
+                              control={<Checkbox />}
+                              label={task}
+                            />
+                            <button
+                              type="button"
+                              className="button small bg-red-500 text-white font-bold"
+                              onClick={() => handleRemoveTask(index)}
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                    <button
+                      type="submit"
+                      className="button small bg-blue-500 text-white font-bold mt-4"
+                    >
+                      Save
+                    </button>
+                  </form>
+                </Box>
+              </Fade>
+            </Modal>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 todo-container">
+              {todoItems.map((item) => (
+                <div
+                  key={item?.id}
+                  className="bg-gray-200 rounded-lg p-6 text-gray-800 shadow-md todo-item"
+                >
+                  <img
+                    src="https://clickup.com/blog/wp-content/uploads/2019/01/to-do-list-apps.png"
+                    alt="To-Do List"
+                    className="h-24 w-24 mx-auto mb-4"
+                  />
+                  <h5 className="text-xl font-bold mb-4 text-center">
+                    {item?.title ?? "Untitled"}
+                  </h5>
 
-            <p className="h2 my-5">
-              Currently Viewing <span className="capitalize">{linkType}</span> Links
-            </p>
-            <table className="border-collapse">
-              <thead>
-                <tr>
-                  <th className="border border-white px-4 py-2 text-white">URL</th>
-                  <th className="border border-white px-4 py-2 text-white">Title</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentLinks?.map((link) => {
-                  return (
-                    <tr key={link.id}>
-                      <td className="border border-white px-4 py-2 text-white">{link.url}</td>
-                      <td className="border border-white px-4 py-2 text-white">{link.title}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <form onSubmit={addLink} className="mt-8">
-              <p className="h2 text-white">Add New Link</p>
-              <p className="my-5">
-                <label htmlFor="title" className="inline-block w-32 text-right pr-4 text-white">
-                  Title:
-                </label>
-                <input
-                  id="title"
-                  className="border border-2 border-white px-2 text-black"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  type="text"
-                />
-              </p>
-              <p className="my-5">
-                <label htmlFor="url" className="inline-block w-32 text-right pr-4 text-white">
-                  URL:
-                </label>
-                <input
-                  className="border border-2 border-white px-2 text-black"
-                  id="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  required
-                  type="url"
-                />
-              </p>
-              <p className="text-center">
-                <input
-                  type="submit"
-                  className="button small bg-white text-blue-900 font-bold"
-                  value="Add Link"
-                />
-              </p>
-            </form>
+                  <table className="border-collapse w-full">
+                    <thead>
+                      <tr>
+                        <th className="p-2 border text-left">Task</th>
+                        <th className="p-2 border text-left">Completed</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.isArray(item?.tasks) &&
+                        item.tasks.map((task, index) => (
+                          <tr key={index}>
+                            <td className="p-2 border">
+                              <FormControlLabel
+                                control={<Checkbox />}
+                                label={task}
+                              />
+                            </td>
+
+                            <td className="p-2 border">
+                              {item?.completed ? "Yes" : "No"}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+
+                  <button
+                    className="button small bg-blue-500 text-white font-bold mt-4"
+                    onClick={() => handleOpen(item)} // Edit button
+                  >
+                    Edit
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
