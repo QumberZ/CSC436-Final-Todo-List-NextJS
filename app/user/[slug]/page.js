@@ -56,7 +56,7 @@ const Page = ({ params: { slug } }) => {
   return (
     <>
       {/* <Profile user_id={user_id} /> */}
-
+      <div className="bg-gradient-to-r from-blue-800 to-pink-500 text-white h-screen">
       <div className="flex items-center justify-between mb-4">
         <IconButton
           color="inherit"
@@ -112,6 +112,7 @@ const Page = ({ params: { slug } }) => {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </>
   );
