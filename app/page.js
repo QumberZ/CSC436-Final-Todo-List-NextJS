@@ -1,12 +1,14 @@
 // @todo ADD ERROR HANDLING THROUGHOUT APP
-
-import { getLatestUsers } from "csc-start/utils/data";
+"use client"
+import { getLatestUsers, getUserTodos } from "csc-start/utils/data";
 import Link from "next/link";
+
 export const revalidate = 20;
 
 export default async function Home() {
 
   const { success, data, error } = await getLatestUsers();
+  
 
   if(error){
     return <p>Error: {error.message}</p>
@@ -18,7 +20,10 @@ export default async function Home() {
 
 
   return (
+    <div>
+ 
     <main className="barge">
+   
       {data.map(({name, slug}) => {
         return <Link 
           key={slug} 
@@ -28,8 +33,11 @@ export default async function Home() {
       })}
 
     </main>
+  
+    </div>
+ 
   )
 
 
-  return <main></main>;
+  return <div></div>;
 }
