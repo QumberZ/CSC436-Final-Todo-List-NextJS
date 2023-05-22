@@ -4,7 +4,7 @@ import TodoAppHeading from "./TodoAppHeading";
 
 const Header = () => {
   return (
-    <header className="bg-blue-700 py-4 px-8">
+    <header className="bg-blue-600 py-4 px-8  bg-gradient-to-r from-blue-900 via-pink-800 to-blue-900">
       <nav className="container mx-auto flex justify-between items-center">
       {/* <Image src="/todo.png" alt="" width={300} height={200} /> */}
       
@@ -28,53 +28,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
-
-
-// const Navbar = () => {
-//   const router = useRouter();
-//   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
-
-//   const logoutHandler = async () => {
-//     try {
-//       setIsLogoutLoading(true);
-//       await supabaseClient.auth.signOut();
-//       router.push("/signin");
-//     } catch (error) {
-//       router.push("/signin");
-//     } finally {
-//       setIsLogoutLoading(false);
-//     }
-//   };
-
-//   return (
-//     <Box height="100%" p="5" bg="gray.100">
-//       <Box maxW="6xl" mx="auto">
-//         <Flex
-//           as="nav"
-//           aria-label="Site navigation"
-//           align="center"
-//           justify="space-between"
-//         >
-//           <Heading mr="4">TodoApp</Heading>
-//           <Box>
-//             <NavLink href="/profile">Profile</NavLink>
-//             <ButtonGroup spacing="4" ml="6">
-//               <Button colorScheme="blue">Add Todo</Button>
-//               <Button
-//                 colorScheme="red"
-//                 onClick={logoutHandler}
-//                 isLoading={isLogoutLoading}
-//               >
-//                 Logout
-//               </Button>
-//             </ButtonGroup>
-//           </Box>
-//         </Flex>
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default Navbar;

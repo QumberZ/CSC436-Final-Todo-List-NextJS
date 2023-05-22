@@ -3,10 +3,10 @@ import Image from "next/image";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-600 py-4 px-8 text-white bottom-0 left-0 w-full">
+    <footer className="bg-blue-600 py-4 px-8  bottom-0 left-0 right-0 text-white flex justify-between items-center bg-gradient-to-r from-blue-900 via-pink-800 to-blue-900"> 
       <div className="container mx-auto flex justify-between items-center">
-        <p className="text-lg text-2xl">
-          List Creationz Copyright
+        <p className="text-white text-4xl hover:text-brutal-gray duration-300 transition-all mx-4 cursor-pointer font-bold">
+        &copy; List Creationz 2023
         </p>
 
         <img

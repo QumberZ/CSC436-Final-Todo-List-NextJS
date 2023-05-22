@@ -67,10 +67,11 @@ const Page = ({ params: { slug } }) => {
           <ArrowBackIcon fontSize="large" />
           Back to users
         </IconButton>
-        <h2 className="text-center text-3xl font-bold">Public Todo Lists</h2>
-        <div></div>
-      </div>
+        </div>
+        <h1 className="text-center text-3xl font-bold">Public Todo Lists</h1>
+        <br></br>
 
+ 
       <div className="flex justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 todo-container">
           {todoItems.map((item) => (
@@ -92,7 +93,7 @@ const Page = ({ params: { slug } }) => {
               <table className="border-collapse w-full">
                 <thead>
                   <tr>
-                    <th className="p-2 border text-left">Task</th>
+                    <th className="p-2 border text-left">Tasks</th>
                     <th className="p-2 border text-left">Completed</th>
                   </tr>
                 </thead>

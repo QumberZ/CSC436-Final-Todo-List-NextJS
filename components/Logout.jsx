@@ -61,10 +61,13 @@ const Logout = () => {
   return (
     <div className="barge my-10">
       <Background></Background>
-      <p>Logging out, please wait...</p>
+      <div className="text-white">
+    <p className="text-3xl font-bold">Logging out, please wait...</p>
+ 
       <Box sx={{ width: '100%' }}>
       <LinearProgressWithLabel value={progress} />
     </Box>
+    </div>
       {error && <p style={{ color: "#C20000" }}>Error: {error}</p>}
     </div>
   );

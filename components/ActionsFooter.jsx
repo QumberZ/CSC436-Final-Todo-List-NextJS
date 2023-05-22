@@ -74,16 +74,16 @@ const ActionsFooter = () => {
     // user is not logged in
     return (
       <div className="flex justify-between mt-5">
-        <Link href="/login">Login</Link>
-        <Link href="/register">Register</Link>
+        <Link href="/" className="text-white text-4xl hover:text-brutal-gray duration-300 transition-all mx-4 cursor-pointer font-bold">Lists</Link>
+        <Link href="/" className="text-white text-4xl hover:text-brutal-gray duration-300 transition-all mx-4 cursor-pointer font-bold">Home</Link>
       </div>
     );
   }
   // user is logged in
   return (
     <div className="flex justify-between">
-      <Link href="/profile">Profile</Link>
-      <Link href="/logout">Logout</Link>
+      <Link href="/profile" className="text-white text-4xl hover:text-brutal-gray duration-300 transition-all mx-4 cursor-pointer font-bold">Profile</Link>
+      <Link href="/logout" className="text-white text-4xl hover:text-brutal-gray duration-300 transition-all mx-4 cursor-pointer font-bold">Logout</Link>
     </div>
   );
 };

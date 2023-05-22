@@ -4,7 +4,7 @@ import { useReducer } from "react";
 import { useRouter } from "next/navigation";
 import useUserMustBeLogged from "csc-start/hooks/useUserMustBeLogged";
 import useUser from "csc-start/hooks/useUser";
-import Background from "./Background";
+
 
 const Login = () => {
   const { user } = useUser();
