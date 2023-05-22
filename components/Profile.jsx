@@ -7,12 +7,14 @@ import {
   addNewTodoItem,
   getTodoItems,
   updateTodoItem,
+  deleteTodoItem, // Add the deleteTodoItem function
 } from "csc-start/utils/data";
 import * as React from "react";
 import Backdrop from "@mui/material/Backdrop";
 import { Box, Fade, TextField, Typography } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
+
 
 const style = {
   position: "absolute",
@@ -33,7 +35,10 @@ const Profile = () => {
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track selected item for editing
   const [selectedTask, setSelectedTask] = useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Track delete confirmation modal open state
+  const [selectedItemToDelete, setSelectedItemToDelete] = useState(null); // Track selected item for deletion
 
+  
   const handleOpen = (item = null) => {
     if (item) {
       setSelectedItem(item);
@@ -53,6 +58,32 @@ const Profile = () => {
     setTitle("");
     setTasks([]);
   };
+
+
+  const handleDeleteOpen = (item) => {
+  setSelectedItemToDelete(item);
+  setDeleteModalOpen(true);
+};
+
+const handleDeleteClose = () => {
+  setSelectedItemToDelete(null);
+  setDeleteModalOpen(false);
+};
+
+const deleteTodoList = async (e) => {
+  e.preventDefault();
+  if (selectedItemToDelete) {
+    const result = await deleteTodoItem(selectedItemToDelete.id);
+    if (result.success) {
+      const updatedItems = todoItems.filter((item) => item.id !== selectedItemToDelete.id);
+      setTodoItems(updatedItems);
+    } else {
+      // Handle error
+    }
+  }
+  handleDeleteClose();
+};
+
 
   const { user, refreshUser, error, loading } = useUser();
   useUserMustBeLogged(user, "in", "/login");
@@ -118,6 +149,20 @@ const Profile = () => {
     // Handle success
   };
 
+
+  const updateTaskCompletion = async (itemId, taskIndex, completed) => {
+    const updatedTodoItems = [...todoItems];
+    const itemIndex = updatedTodoItems.findIndex((item) => item.id === itemId);
+    if (itemIndex !== -1) {
+      updatedTodoItems[itemIndex].tasks[taskIndex].completed = completed;
+      setTodoItems(updatedTodoItems);
+  
+      // Update the completed status in Supabase or your preferred data source
+      await updateTodoItem(itemId, updatedTodoItems[itemIndex].tasks);
+    }
+  };
+
+  
   const handleTaskChange = (e) => {
     setSelectedTask(e.target.value);
   };
@@ -272,14 +317,60 @@ const Profile = () => {
                     </tbody>
                   </table>
 
-                  <button
-                    className="button small bg-blue-500 text-white font-bold mt-4"
-                    onClick={() => handleOpen(item)} // Edit button
-                  >
-                    Edit
-                  </button>
-                </div>
-              ))}
+                  <div className="flex justify-center mt-4">
+      <button
+        className="button small bg-blue-500 text-white font-bold mr-2"
+        onClick={() => handleOpen(item)} // Edit button
+      >
+        Edit
+      </button>
+      <button
+        className="button small bg-red-500 text-white font-bold"
+        onClick={() => handleDeleteOpen(item)} // Delete button
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+))}
+<Modal
+  aria-labelledby="delete-confirmation-modal-title"
+  aria-describedby="delete-confirmation-modal-description"
+  open={deleteModalOpen}
+  onClose={handleDeleteClose}
+  closeAfterTransition
+  slots={{ backdrop: Backdrop }}
+  slotProps={{
+    backdrop: {
+      timeout: 500,
+    },
+  }}
+>
+  <Fade in={deleteModalOpen}>
+    <Box sx={style}>
+      <Typography variant="h6" component="h2" mb={2}>
+        Are you sure you want to delete this todo list?
+      </Typography>
+      <Typography variant="body1" id="delete-confirmation-modal-description" mb={4}>
+        This action cannot be undone.
+      </Typography>
+      <div className="flex justify-end">
+        <button
+          className="button small bg-red-500 text-white font-bold"
+          onClick={deleteTodoList}
+        >
+          Delete
+        </button>
+        <button
+          className="button small bg-gray-500 text-white font-bold ml-2"
+          onClick={handleDeleteClose}
+        >
+          Cancel
+        </button>
+      </div>
+    </Box>
+  </Fade>
+</Modal>
             </div>
           </div>
         )}

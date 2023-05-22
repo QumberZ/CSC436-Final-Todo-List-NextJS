@@ -117,6 +117,26 @@ const updateTodoItem = async (id, tasks, title, completed) => {
   }
 };
 
+const deleteTodoItem = async (itemId) => {
+  try {
+    const { data, error } = await supabase
+      .from("todo_items")
+      .delete()
+      .match({ id: itemId });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (data) {
+      return { success: true };
+    } else {
+      throw new Error("Failed to delete todo item.");
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
 
 
 
@@ -396,4 +416,5 @@ export {
   addNewTodoItem,
   getTodoItems,
   updateTodoItem,
+  deleteTodoItem,
 };
