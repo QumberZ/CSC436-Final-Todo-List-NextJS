@@ -3,12 +3,14 @@
     {
       "id": "1",
       "email": "Johnny@gmail.com",
-      "password": "hashedPassword1"
+      "password": "hashedPassword1",
+      "slug": "slug1"
     },
     {
       "id": "2",
       "email": "eddie@gmail.com",
-      "password": "hashedPassword2"
+      "password": "hashedPassword2",
+      "slug": "slug2"
     }
   ],
   "todo_items": [
