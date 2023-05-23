@@ -5,8 +5,8 @@ import Footer from "../components/Footer";
 import { Darker_Grotesque } from "next/font/google";
 
 export const metadata = {
-  title: "LinkBarge",
-  description: "A link curation tool. Barge your links!",
+  title: "Todo list Application",
+  description: "A todo list app where users can create their daily tasks!",
 };
 
 const dG = Darker_Grotesque({

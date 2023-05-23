@@ -1,5 +1,4 @@
 import supabase from "./supabase";
-import { v4 as uuidv4 } from "uuid";
 
 const getUserBySlug = async (slug) => {
   const { data, error } = await supabase
@@ -46,17 +45,15 @@ const logout = async () => {
   return { success: !error, error };
 };
 const addNewTodoItem = async (user_id, tasks, title, order, completed) => {
-  const { data, error } = await supabase
-    .from("todo_items")
-    .insert([
-      {
-        order,
-        title,
-        user_id,
-        tasks,
-        completed: false,
-      },
-    ]);
+  const { data, error } = await supabase.from("todo_items").insert([
+    {
+      order,
+      title,
+      user_id,
+      tasks,
+      completed: false,
+    },
+  ]);
 
   if (error) {
     return {
@@ -70,7 +67,6 @@ const addNewTodoItem = async (user_id, tasks, title, order, completed) => {
     message: "Todo item added successfully",
   };
 };
-
 
 const getTodoItems = async (user_id) => {
   const { data, error } = await supabase
@@ -95,9 +91,9 @@ const updateTodoItem = async (id, tasks, title, completed) => {
   try {
     // Make an update query to update the todo item
     const { data, error } = await supabase
-      .from('todo_items')
+      .from("todo_items")
       .update({ tasks, title, completed })
-      .eq('id', id);
+      .eq("id", id);
 
     // Handle the response and return the updated todo item
     if (error) {
@@ -108,8 +104,6 @@ const updateTodoItem = async (id, tasks, title, completed) => {
       const updatedItem = data[0];
       return updatedItem;
     }
-
-
   } catch (error) {
     // Handle the error
     console.log(error);
@@ -137,9 +131,6 @@ const deleteTodoItem = async (itemId) => {
     return { success: false, message: error.message };
   }
 };
-
-
-
 
 const addNewLink = async (user_id, url, title, order, linkType = "link") => {
   linkRequestData.data = null;
@@ -224,7 +215,6 @@ const getCurrentUser = async () => {
 const linkRequestData = {
   data: null,
 };
-
 
 const getLinks = async (userId) => {
   if (linkRequestData.data) {
